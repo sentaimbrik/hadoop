@@ -14,6 +14,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class LongestWord {
 
+
     public static class TokenizerMapper
             extends Mapper<Object, Text, Text, IntWritable> {
 
