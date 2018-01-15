@@ -30,15 +30,28 @@ public class LongestWord {
         }
     }
 
-    public static class IntSumReducer
-            extends Reducer<Text, IntWritable, Text, IntWritable> {
+    public static class IntSumReducer extends Reducer<Text, IntWritable, Text, IntWritable>
+    {
         private IntWritable result = new IntWritable();
 
         public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException
         {
+            int max = 0;
 
-            result.set(key.getLength());
-            context.write(key, result);
+            for (IntWritable val : values)
+            {
+                int v = Integer.parseInt(val.toString());
+                if (max < v)
+                {
+                    max = v;
+                }
+            }
+
+            if (key.getLength() == max)
+            {
+                result.set(key.getLength());
+                context.write(key, result);
+            }
         }
     }
 
