@@ -7,6 +7,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -20,36 +21,35 @@ public class LongestWord {
     {
         private Text word = new Text();
 
-        public void map(Object key, Text value, Context context) throws IOException, InterruptedException
+        public void map(Object key, Text value,  OutputCollector<Text, IntWritable> output) throws IOException, InterruptedException
         {
-            StringTokenizer itr = new StringTokenizer(value.toString());
-            int wordLength = itr.nextToken().length();
-
-            while (itr.hasMoreTokens())
+            StringTokenizer s = new StringTokenizer(value.toString());
+            while (s.hasMoreTokens())
             {
-                if (wordLength < itr.nextToken().length()) {
-                    wordLength = itr.nextToken().length();
-                }
+                word.set(s.nextToken());
             }
-
-            while (itr.hasMoreTokens())
-            {
-                if (itr.nextToken().length() == wordLength)
-                {
-                    word.set(itr.nextToken());
-                    context.write(word,  new IntWritable(wordLength));
-                }
-            }
+            output.collect(word,  new IntWritable(word.getLength()));
         }
     }
 
     public static class IntSumReducer extends Reducer<Text, IntWritable, Text, IntWritable>
     {
-        public void reduce(Text key, Iterator<IntWritable> values, Context context) throws IOException, InterruptedException
+        public void reduce(Text key, Iterator <IntWritable> values, OutputCollector<Text, IntWritable> output) throws IOException, InterruptedException
         {
+            int max = 0;
             while (values.hasNext())
             {
-                context.write(key, new IntWritable(values.next().get()));
+                if((values.next().get()) > max)
+                {
+                    max = values.next().get();
+                }
+            }
+            while (values.hasNext())
+            {
+                if (values.next().get() == max)
+                {
+                    output.collect(key, new IntWritable(max));
+                }
             }
         }
     }
