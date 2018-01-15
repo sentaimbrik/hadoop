@@ -1,5 +1,6 @@
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import org.apache.hadoop.conf.Configuration;
@@ -34,23 +35,16 @@ public class LongestWord {
     {
         private IntWritable result = new IntWritable();
 
-        public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException
+        public void reduce(Text key, Iterator<IntWritable> values, Context context) throws IOException, InterruptedException
         {
-            int max = 0;
+            int max = Integer.MAX_VALUE;
 
-            for (IntWritable val : values)
+            while (values.hasNext())
             {
-                int v = Integer.parseInt(val.toString());
-                if (max < v)
+                if((values.next().get()) == max)
                 {
-                    max = v;
+                    context.write(key, new IntWritable(values.next().get()));
                 }
-            }
-
-            if (key.getLength() == max)
-            {
-                result.set(key.getLength());
-                context.write(key, result);
             }
         }
     }
