@@ -23,28 +23,33 @@ public class LongestWord {
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException
         {
             StringTokenizer itr = new StringTokenizer(value.toString());
-            while (itr.hasMoreTokens()) {
-                word.set(itr.nextToken());
-                IntWritable length = new IntWritable(word.getLength());
-                context.write(word, length);
+            int wordLength = itr.nextToken().length();
+
+            while (itr.hasMoreTokens())
+            {
+                if (wordLength < itr.nextToken().length()) {
+                    wordLength = itr.nextToken().length();
+                }
+            }
+
+            while (itr.hasMoreTokens())
+            {
+                if (itr.nextToken().length() == wordLength)
+                {
+                    word.set(itr.nextToken());
+                    context.write(word,  new IntWritable(wordLength));
+                }
             }
         }
     }
 
     public static class IntSumReducer extends Reducer<Text, IntWritable, Text, IntWritable>
     {
-        private IntWritable result = new IntWritable();
-
         public void reduce(Text key, Iterator<IntWritable> values, Context context) throws IOException, InterruptedException
         {
-            int max = Integer.MAX_VALUE;
-
             while (values.hasNext())
             {
-                if((values.next().get()) == max)
-                {
-                    context.write(key, new IntWritable(values.next().get()));
-                }
+                context.write(key, new IntWritable(values.next().get()));
             }
         }
     }
