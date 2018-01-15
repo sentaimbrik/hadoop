@@ -27,15 +27,8 @@ public class LongestWord {
             StringTokenizer s = new StringTokenizer(value.toString());
             while (s.hasMoreTokens())
             {
-                if (maxLength < s.nextToken().length())
-                {
-                    maxLength = s.nextToken().length();
-                }
-            }
-            while (s.hasMoreTokens())
-            {
                 word.set(s.nextToken());
-                context.write(word, new IntWritable(maxLength));
+                context.write(word, new IntWritable(word.getLength()));
             }
 
         }
