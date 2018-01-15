@@ -1,4 +1,3 @@
-
 import java.io.IOException;
 import java.util.StringTokenizer;
 
@@ -14,9 +13,8 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class LongestWord {
 
-
     public static class TokenizerMapper
-            extends Mapper<Object, Text, Text, IntWritable> {
+            extends Mapper<Object, Text, Text, IntWritable>{
 
         private final static IntWritable one = new IntWritable(1);
         private Text word = new Text();
@@ -26,13 +24,14 @@ public class LongestWord {
             StringTokenizer itr = new StringTokenizer(value.toString());
             while (itr.hasMoreTokens()) {
                 word.set(itr.nextToken());
+                System.out.println("111");
                 context.write(word, one);
             }
         }
     }
 
     public static class IntSumReducer
-            extends Reducer<Text, IntWritable, Text, IntWritable> {
+            extends Reducer<Text,IntWritable,Text,IntWritable> {
         private IntWritable result = new IntWritable();
 
         public void reduce(Text key, Iterable<IntWritable> values,
@@ -53,7 +52,7 @@ public class LongestWord {
         job.setJarByClass(LongestWord.class);
         job.setMapperClass(TokenizerMapper.class);
         job.setCombinerClass(IntSumReducer.class);
-        job.setReducerClass (IntSumReducer. class );
+        job.setReducerClass(IntSumReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
