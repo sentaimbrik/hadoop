@@ -21,20 +21,20 @@ public class LongestWord {
     {
         private Text word = new Text();
 
-        public void map(Object key, Text value,  OutputCollector<Text, IntWritable> output) throws IOException, InterruptedException
+        public void map(Object key, Text value,  Context context) throws IOException, InterruptedException
         {
             StringTokenizer s = new StringTokenizer(value.toString());
             while (s.hasMoreTokens())
             {
                 word.set(s.nextToken());
             }
-            output.collect(word,  new IntWritable(word.getLength()));
+            context.write(word,  new IntWritable(word.getLength()));
         }
     }
 
     public static class IntSumReducer extends Reducer<Text, IntWritable, Text, IntWritable>
     {
-        public void reduce(Text key, Iterator <IntWritable> values, OutputCollector<Text, IntWritable> output) throws IOException, InterruptedException
+        public void reduce(Text key, Iterator <IntWritable> values, Context context) throws IOException, InterruptedException
         {
             int max = 0;
             while (values.hasNext())
@@ -48,7 +48,7 @@ public class LongestWord {
             {
                 if (values.next().get() == max)
                 {
-                    output.collect(key, new IntWritable(max));
+                    context.write(key, new IntWritable(max));
                 }
             }
         }
