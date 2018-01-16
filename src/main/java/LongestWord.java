@@ -24,12 +24,12 @@ public class LongestWord
         {
             String str = value.toString().replaceAll("\\n", " ");
             StringTokenizer s = new StringTokenizer(str);
-            int i = 0;
+
             while (s.hasMoreTokens())
             {
-                word.set(s.nextToken() + i);
+                word.set(s.nextToken());
                 context.write(new IntWritable(word.getLength()), word);
-                i++;
+
             }
         }
     }
@@ -40,9 +40,13 @@ public class LongestWord
 
         public void reduce(IntWritable key, Iterator<Text> values, Context context) throws IOException, InterruptedException
         {
+            int i = 0;
+            Text word = new Text();
             while (values.hasNext())
             {
-                context.write(values.next(), key);
+                word.set(values.next().toString() + i);
+                context.write(word, key);
+                i++;
             }
         }
     }
