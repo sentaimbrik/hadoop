@@ -41,14 +41,19 @@ public class LongestWord
         @Override
         public void reduce(IntWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException
         {
+            StringBuilder sb = new StringBuilder();
             for (Text v : values)
             {
-                count.put(v, Integer.parseInt(key.toString()));
+                sb.append(v + ";");
+               // count.put(v, Integer.parseInt(key.toString()));
             }
+            Text txt = new Text();
+            txt.set(sb.toString());
+            context.write(txt, key);
             //if (Integer.parseInt(max.toString()) < Integer.parseInt(key.toString())) max = key;
         }
 
-        @Override
+        /*@Override
         public void cleanup(Context context) throws IOException, InterruptedException
         {
             Set<Text> set = count.keySet();
@@ -64,7 +69,7 @@ public class LongestWord
 
             }
 
-        }
+        }*/
     }
 
     public static void main(String[] args) throws Exception {
