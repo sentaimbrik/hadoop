@@ -54,6 +54,8 @@ public class LongestWord
         job.setMapperClass(TokenizerMapper.class);
         //job.setCombinerClass(IntSumReducer.class);
         job.setReducerClass (IntSumReducer.class );
+        job.setMapOutputKeyClass(IntWritable.class);
+        job.setMapOutputValueClass(Text.class);
         job.setOutputKeyClass(IntWritable.class);
         job.setOutputValueClass(Text.class);
         Path outputPath = new Path(args[1]);
