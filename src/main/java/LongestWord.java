@@ -15,7 +15,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class LongestWord
 {
-    public static int max = 0;
+
     public static class TokenizerMapper extends Mapper<Object, Text, IntWritable, Text>
     {
         private Text word = new Text();
@@ -24,14 +24,12 @@ public class LongestWord
         {
             String str = value.toString().replaceAll("\\n", " ");
             StringTokenizer s = new StringTokenizer(str);
+            int i = 0;
             while (s.hasMoreTokens())
             {
-                word.set(s.nextToken());
-                if (word.getLength() > max)
-                {
-                    max = word.getLength();
-                }
+                word.set(s.nextToken() + i);
                 context.write(new IntWritable(word.getLength()), word);
+                i++;
             }
         }
     }
@@ -44,7 +42,7 @@ public class LongestWord
         {
             while (values.hasNext())
             {
-                context.write(values.next(), new IntWritable(max));
+                context.write(values.next(), key);
             }
         }
     }
