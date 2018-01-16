@@ -15,7 +15,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class LongestWord
 {
-
+    public static int max = 0;
     public static class TokenizerMapper extends Mapper<Object, Text, IntWritable, Text>
     {
         private Text word = new Text();
@@ -34,42 +34,34 @@ public class LongestWord
         }
     }
 
-    public static class IntSumReducer extends Reducer<IntWritable, Text, Text, IntWritable>
+    public static class Combiner extends Reducer<IntWritable, Text, Text, IntWritable>
     {
-        private Map<Integer, Text> count = new HashMap<Integer, Text>();
         @Override
         public void reduce(IntWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException
         {
+            if (Integer.parseInt(key.toString()) > max) max = Integer.parseInt(key.toString());
             StringBuilder sb = new StringBuilder();
-            for (Text v : values)
-            {
+            for (Text v : values) {
                 sb.append(v + ";");
-               // count.put(v, Integer.parseInt(key.toString()));
             }
             Text txt = new Text();
             txt.set(sb.toString());
-            count.put(Integer.parseInt(key.toString()), txt);
-            //if (Integer.parseInt(max.toString()) < Integer.parseInt(key.toString())) max = key;
+            context.write(txt, key);
         }
+    }
 
+    public static class IntSumReducer extends Reducer<IntWritable, Text, Text, IntWritable>
+    {
         @Override
-        public void cleanup(Context context) throws IOException, InterruptedException
+        public void reduce(IntWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException
         {
-            Set<Integer> set = count.keySet();
-            int max = 0;
-            for (Integer i : set)
-            {
-                if (max < i) max = i;
-            }
-
-            for (Integer i : set)
-            {
-                if (i == max)
+                if (Integer.parseInt(key.toString()) == max)
                 {
-                    context.write(count.get(i), new IntWritable(i));
+                    for (Text t : values)
+                    {
+                        context.write(t, key);
+                    }
                 }
-            }
-
 
         }
     }
@@ -79,7 +71,7 @@ public class LongestWord
         Job job = Job.getInstance(conf, "Longest Word");
         job.setJarByClass(LongestWord.class);
         job.setMapperClass(TokenizerMapper.class);
-        //job.setCombinerClass(IntSumReducer.class);
+        job.setCombinerClass(Combiner.class);
         job.setReducerClass (IntSumReducer.class );
         job.setMapOutputKeyClass(IntWritable.class);
         job.setMapOutputValueClass(Text.class);
