@@ -53,7 +53,10 @@ public class LongestWord
 
             for(IntWritable k : count.keySet())
             {
-                context.write(count.get(k), k);
+                if (Integer.parseInt(k.toString()) == max)
+                {
+                    context.write(count.get(k), k);
+                }
             }
 
         }
