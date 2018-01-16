@@ -2,6 +2,7 @@
 import java.io.IOException;
 import java.util.*;
 
+import org.apache.commons.collections.map.LinkedMap;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -33,30 +34,21 @@ public class LongestWord
     public static class IntSumReducer extends Reducer<IntWritable, Text, Text, IntWritable>
     {
         private Map<IntWritable, Text> count = new HashMap<IntWritable, Text>();
-        private int max = 0;
 
         public void reduce(IntWritable key, Iterator<Text> values, Context context) throws IOException, InterruptedException
         {
             while (values.hasNext())
             {
                 count.put(key, values.next());
-                if (Integer.parseInt(key.toString()) > max)
-                {
-                    max = Integer.parseInt(key.toString());
-                }
             }
         }
 
         @Override
         protected void cleanup (Context context) throws IOException, InterruptedException
         {
-            for(IntWritable k : count.keySet())
-            {
-                if (Integer.parseInt(k.toString()) == max)
-                {
-                    context.write(count.get(k), k);
-                }
-            }
+            LinkedMap sorted = new LinkedMap(count);
+            IntWritable max = (IntWritable) sorted.lastKey();
+            context.write(count.get(max), max);
         }
     }
 
