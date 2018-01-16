@@ -33,24 +33,23 @@ public class LongestWord
     public static class IntSumReducer extends Reducer<IntWritable, Text, Text, IntWritable>
     {
         private Map<IntWritable, Text> count = new HashMap<IntWritable, Text>();
+        private int max = 0;
 
         public void reduce(IntWritable key, Iterator<Text> values, Context context) throws IOException, InterruptedException
         {
             while (values.hasNext())
             {
                 count.put(key, values.next());
-            }
-
-            int max = 0;
-
-            for(IntWritable k : count.keySet())
-            {
-                if (max < Integer.parseInt(k.toString()))
+                if (Integer.parseInt(key.toString()) > max)
                 {
-                    max = Integer.parseInt(k.toString());
+                    max = Integer.parseInt(key.toString());
                 }
             }
+        }
 
+        @Override
+        protected void cleanup (Context context) throws IOException, InterruptedException
+        {
             for(IntWritable k : count.keySet())
             {
                 if (Integer.parseInt(k.toString()) == max)
@@ -58,7 +57,6 @@ public class LongestWord
                     context.write(count.get(k), k);
                 }
             }
-
         }
     }
 
@@ -69,8 +67,8 @@ public class LongestWord
         job.setMapperClass(TokenizerMapper.class);
         job.setCombinerClass(IntSumReducer.class);
         job.setReducerClass (IntSumReducer. class );
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
+        job.setOutputKeyClass(IntWritable.class);
+        job.setOutputValueClass(Text.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         System.exit(job.waitForCompletion(true) ? 0 : 1);
