@@ -40,13 +40,13 @@ public class LongestWord
 
         public void reduce(IntWritable key, Iterator<Text> values, Context context) throws IOException, InterruptedException
         {
-            int i = 0;
+
             Text word = new Text();
             while (values.hasNext())
             {
-                word.set(values.next().toString() + i);
+                word.set(values.next().toString() + "qqqq");
                 context.write(word, key);
-                i++;
+
             }
         }
     }
