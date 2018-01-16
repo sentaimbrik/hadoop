@@ -41,7 +41,7 @@ public class LongestWord
         {
             for(Text v : values)
             {
-                if (Integer.parseInt(v.toString()) == 7)
+                if (Integer.parseInt(key.toString()) == 7)
                 context.write(v, key);
             }
         }
