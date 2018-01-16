@@ -53,10 +53,17 @@ public class LongestWord
             int max = 0;
             for (Integer i : set)
             {
-                max = i;
+                if (max < i) max = i;
             }
 
-            context.write(count.get(max), new IntWritable(max));
+            for (Map.Entry<Integer, Text> e : count.entrySet())
+            {
+                if (count.containsKey(max))
+                {
+                    context.write(count.get(max), new IntWritable(max));
+                }
+            }
+
         }
     }
 
