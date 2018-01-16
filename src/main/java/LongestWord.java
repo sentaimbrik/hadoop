@@ -46,9 +46,16 @@ public class LongestWord
         @Override
         protected void cleanup (Context context) throws IOException, InterruptedException
         {
-            LinkedMap sorted = new LinkedMap(count);
-            IntWritable max = (IntWritable) sorted.lastKey();
-            context.write(count.get(max), max);
+            Set keyset = count.keySet();
+            Iterator<Integer> itr = keyset.iterator();
+            Integer lastElement = itr.next();
+
+            while(itr.hasNext()) {
+                lastElement=itr.next();
+            }
+
+
+            context.write(count.get(lastElement), new IntWritable(lastElement));
         }
     }
 
