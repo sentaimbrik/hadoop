@@ -22,7 +22,8 @@ public class LongestWord
 
         public void map(Object key, Text value,  Context context) throws IOException, InterruptedException
         {
-            StringTokenizer s = new StringTokenizer(value.toString());
+            String str = value.toString().replaceAll("\\n", " ");
+            StringTokenizer s = new StringTokenizer(str, " ");
             while (s.hasMoreTokens())
             {
                 word.set(s.nextToken());
@@ -50,7 +51,7 @@ public class LongestWord
         job.setJarByClass(LongestWord.class);
         job.setMapperClass(TokenizerMapper.class);
         job.setCombinerClass(IntSumReducer.class);
-        job.setReducerClass (IntSumReducer. class );
+        job.setReducerClass (IntSumReducer.class );
         job.setOutputKeyClass(IntWritable.class);
         job.setOutputValueClass(Text.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
