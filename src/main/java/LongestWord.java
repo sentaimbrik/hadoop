@@ -1,7 +1,6 @@
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -13,9 +12,10 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.hsqldb.lib.Collection;
 
-public class LongestWord {
-    public static int count = 0;
+public class LongestWord
+{
 
     public static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritable>
     {
@@ -28,22 +28,26 @@ public class LongestWord {
             {
                 word.set(s.nextToken());
                 context.write(word, new IntWritable(word.getLength()));
-
             }
-
         }
     }
 
     public static class IntSumReducer extends Reducer<Text, IntWritable, Text, IntWritable>
     {
+        private Map<IntWritable, Text> count = new HashMap<IntWritable, Text>();
+
         public void reduce(Text key, Iterator <IntWritable> values, Context context) throws IOException, InterruptedException
         {
             while (values.hasNext())
             {
-                context.write(key, new IntWritable(count));
+                count.put(values.next(), key);
             }
+            Map<IntWritable, Text> sorted = new TreeMap<IntWritable, Text>(count);
 
-
+            for(IntWritable k : sorted.keySet())
+            {
+                context.write(sorted.get(k), k);
+            }
 
         }
     }
