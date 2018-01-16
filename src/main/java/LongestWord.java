@@ -23,7 +23,7 @@ public class LongestWord
         public void map(Object key, Text value,  Context context) throws IOException, InterruptedException
         {
             String str = value.toString().replaceAll("\\n", " ");
-            StringTokenizer s = new StringTokenizer(str, " ");
+            StringTokenizer s = new StringTokenizer(str);
             while (s.hasMoreTokens())
             {
                 word.set(s.nextToken());
