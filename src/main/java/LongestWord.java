@@ -15,7 +15,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class LongestWord
 {
-    public static Set<Integer> set = new HashSet<Integer>();
+
     public static class TokenizerMapper extends Mapper<Object, Text, IntWritable, Text>
     {
         private Text word = new Text();
@@ -29,27 +29,34 @@ public class LongestWord
             {
                 word.set(s.nextToken());
                 context.write(new IntWritable(word.getLength()), word);
-                set.add(word.getLength());
-
             }
         }
     }
 
     public static class IntSumReducer extends Reducer<IntWritable, Text, Text, IntWritable>
     {
+        private Map<Integer, Text> count = new HashMap<Integer, Text>();
         @Override
         public void reduce(IntWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException
         {
+            for (Text v : values)
+            {
+                count.put(Integer.parseInt(key.toString()), v);
+            }
+
+        }
+
+        @Override
+        public void cleanup(Context context) throws IOException, InterruptedException
+        {
+            Set<Integer> set = count.keySet();
             int max = 0;
             for (Integer i : set)
             {
                 max = i;
             }
-            for(Text v : values)
-            {
-                if (Integer.parseInt(key.toString()) == max)
-                context.write(v, key);
-            }
+
+            context.write(count.get(max), new IntWritable(max));
         }
     }
 
