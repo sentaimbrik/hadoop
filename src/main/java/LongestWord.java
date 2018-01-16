@@ -28,10 +28,7 @@ public class LongestWord {
             {
                 word.set(s.nextToken());
                 context.write(word, new IntWritable(word.getLength()));
-                if (word.getLength() > count)
-                {
-                    count = word.getLength();
-                }
+
             }
 
         }
