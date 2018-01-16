@@ -59,10 +59,9 @@ public class LongestWord
             }
             for (Map.Entry<Text, Integer> e : count.entrySet())
             {
-                if (e.getValue() == max);
-                {
+
                     context.write(e.getKey(), new IntWritable(max));
-                }
+
             }
 
         }
