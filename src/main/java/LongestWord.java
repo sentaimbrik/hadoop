@@ -36,17 +36,13 @@ public class LongestWord
 
     public static class IntSumReducer extends Reducer<IntWritable, Text, Text, IntWritable>
     {
-        private Map<IntWritable, Text> count = new HashMap<IntWritable, Text>();
 
         public void reduce(IntWritable key, Iterator<Text> values, Context context) throws IOException, InterruptedException
         {
-
-            Text word = new Text();
             while (values.hasNext())
             {
-                word.set(values.next().toString() + "qqqq");
-                context.write(word, key);
-
+                if (Integer.parseInt(key.toString()) == 7)
+                context.write(values.next(), key);
             }
         }
     }
@@ -56,12 +52,14 @@ public class LongestWord
         Job job = Job.getInstance(conf, "Longest Word");
         job.setJarByClass(LongestWord.class);
         job.setMapperClass(TokenizerMapper.class);
-        job.setCombinerClass(IntSumReducer.class);
+        //job.setCombinerClass(IntSumReducer.class);
         job.setReducerClass (IntSumReducer.class );
         job.setOutputKeyClass(IntWritable.class);
         job.setOutputValueClass(Text.class);
+        Path outputPath = new Path(args[1]);
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        outputPath.getFileSystem(conf).delete(outputPath);
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
 }
