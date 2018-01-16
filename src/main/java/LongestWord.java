@@ -36,13 +36,13 @@ public class LongestWord
 
     public static class IntSumReducer extends Reducer<IntWritable, Text, Text, IntWritable>
     {
-
-        public void reduce(IntWritable key, Iterator<Text> values, Context context) throws IOException, InterruptedException
+        @Override
+        public void reduce(IntWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException
         {
-            while (values.hasNext())
+            for(Text v : values)
             {
-                if (Integer.parseInt(key.toString()) == 7)
-                context.write(values.next(), key);
+                if (Integer.parseInt(v.toString()) == 7)
+                context.write(v, key);
             }
         }
     }
