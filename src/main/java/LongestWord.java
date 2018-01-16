@@ -36,8 +36,7 @@ public class LongestWord
 
     public static class IntSumReducer extends Reducer<IntWritable, Text, Text, IntWritable>
     {
-        private Map<Text, Integer> count = new HashMap<Text, Integer>();
-        private int max = 0;
+        private Map<Integer, Text> count = new HashMap<Integer, Text>();
         @Override
         public void reduce(IntWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException
         {
@@ -49,27 +48,30 @@ public class LongestWord
             }
             Text txt = new Text();
             txt.set(sb.toString());
-            context.write(txt, key);
+            count.put(Integer.parseInt(key.toString()), txt);
             //if (Integer.parseInt(max.toString()) < Integer.parseInt(key.toString())) max = key;
         }
 
-        /*@Override
+        @Override
         public void cleanup(Context context) throws IOException, InterruptedException
         {
-            Set<Text> set = count.keySet();
-
-            for (Text t : set)
+            Set<Integer> set = count.keySet();
+            int max = 0;
+            for (Integer i : set)
             {
-                if (t.toString().length() > max) max = t.toString().length();
-            }
-            for (Map.Entry<Text, Integer> e : count.entrySet())
-            {
-
-                    context.write(e.getKey(), new IntWritable(max));
-
+                if (max < i) max = i;
             }
 
-        }*/
+            for (Integer i : set)
+            {
+                if (i == max)
+                {
+                    context.write(count.get(i), new IntWritable(i));
+                }
+            }
+
+
+        }
     }
 
     public static void main(String[] args) throws Exception {
