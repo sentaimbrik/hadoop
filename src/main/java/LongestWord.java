@@ -2,7 +2,6 @@
 import java.io.IOException;
 import java.util.*;
 
-import org.apache.commons.collections.map.LinkedMap;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -16,7 +15,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 public class LongestWord
 {
 
-    public static class TokenizerMapper extends Mapper<Object, Text, IntWritable, Text>
+    public static class WordsMapper extends Mapper<Object, Text, IntWritable, Text>
     {
         private Text word = new Text();
 
@@ -34,7 +33,7 @@ public class LongestWord
         }
     }
 
-    public static class IntSumReducer extends Reducer<IntWritable, Text, Text, IntWritable>
+    public static class WordsReducer extends Reducer<IntWritable, Text, Text, IntWritable>
     {
         private Map<Integer, Text> count = new HashMap<Integer, Text>();
         @Override
@@ -74,9 +73,9 @@ public class LongestWord
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "Longest Word");
         job.setJarByClass(LongestWord.class);
-        job.setMapperClass(TokenizerMapper.class);
+        job.setMapperClass(WordsMapper.class);
         //job.setCombinerClass(IntSumReducer.class);
-        job.setReducerClass (IntSumReducer.class );
+        job.setReducerClass (WordsReducer.class );
         job.setMapOutputKeyClass(IntWritable.class);
         job.setMapOutputValueClass(Text.class);
         job.setOutputKeyClass(Text.class);
