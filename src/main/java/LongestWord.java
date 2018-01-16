@@ -39,23 +39,8 @@ public class LongestWord
         {
             while (values.hasNext())
             {
-                count.put(key, values.next());
+                context.write(values.next(), key);
             }
-        }
-
-        @Override
-        protected void cleanup (Context context) throws IOException, InterruptedException
-        {
-            Set keyset = count.keySet();
-            Iterator<Integer> itr = keyset.iterator();
-            Integer lastElement = itr.next();
-
-            while(itr.hasNext()) {
-                lastElement=itr.next();
-            }
-
-
-            context.write(count.get(lastElement), new IntWritable(lastElement));
         }
     }
 
