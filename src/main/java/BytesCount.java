@@ -17,7 +17,7 @@ public class BytesCount
 {
     public static class BytesMapper extends Mapper<Object, Text, Text, IntWritable>
     {
-        private Pattern patternIP = Pattern.compile("^[A-Za-z]*[0-9]*");
+        private Pattern patternIP = Pattern.compile("^([A-Za-z]*)([0-9]*)");
         private Pattern patternBytes = Pattern.compile("([0-9]{1,}\\ \\\")|([0-9]{1,}\\ \\- \\\")");
         private Pattern patternDigits = Pattern.compile("([0-9]*)");
 
@@ -30,7 +30,7 @@ public class BytesCount
             matcherBytes.find();
             Matcher matcherDigits = patternDigits.matcher(matcherBytes.group(0));
             matcherDigits.find();
-            context.write(new Text(matcherIP.group(0)), new IntWritable(Integer.parseInt(matcherDigits.group(0))));
+            context.write(new Text(matcherIP.group(1).toUpperCase() + "," + matcherIP.group(2)), new IntWritable(Integer.parseInt(matcherDigits.group(0))));
         }
     }
 
