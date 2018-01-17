@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -49,9 +48,8 @@ public class BytesCount
         }
     }
 
-    public static class BytesCombiner extends Reducer<Text, IntWritable, Text, NullWritable>
+    public static class BytesCombiner extends Reducer<Text, IntWritable, Text, IntWritable>
     {
-        NullWritable nw = NullWritable.get();
         @Override
         public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException
         {
@@ -60,8 +58,7 @@ public class BytesCount
             {
                 bytesSum += Integer.parseInt(i.toString());
             }
-
-            context.write(new Text(key.toString() + "," + bytesSum), nw);
+            context.write(key, new IntWritable(bytesSum));
         }
     }
 
@@ -97,9 +94,9 @@ public class BytesCount
         job.setCombinerClass(BytesCombiner.class);
         //job.setReducerClass (BytesReducer.class );
         job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(NullWritable.class);
+        job.setMapOutputValueClass(IntWritable.class);
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(NullWritable.class);
+        job.setOutputValueClass(IntWritable.class);
         Path outputPath = new Path(args[1]);
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
