@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -48,7 +49,7 @@ public class BytesCount
         }
     }
 
-    public static class BytesCombiner extends Reducer<Text, IntWritable, Text, IntWritable>
+    public static class BytesCombiner extends Reducer<Text, IntWritable, Text, NullWritable>
     {
         @Override
         public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException
@@ -58,7 +59,7 @@ public class BytesCount
             {
                 bytesSum += Integer.parseInt(i.toString());
             }
-            context.write(key, new IntWritable(bytesSum));
+            context.write(new Text(key.toString() + "," + bytesSum), NullWritable.get());
         }
     }
 
