@@ -48,21 +48,26 @@ public class BytesCount
             matcherBytes.find();
             Matcher matcherDigits = patternDigits.matcher(matcherBytes.group(0));
             matcherDigits.find();
-            context.write(new Text(matcherIP.group(1).toUpperCase() + "," + IPstr), new IntWritable(Integer.parseInt(matcherDigits.group(0))));
+            context.write(new Text(matcherIP.group(1).toUpperCase() + IPstr), new IntWritable(Integer.parseInt(matcherDigits.group(0))));
         }
     }
 
-    public static class BytesCombiner extends Reducer<Text, IntWritable, Text, IntWritable>
+    public static class BytesCombiner extends Reducer<Text, IntWritable, Text, CustomData>
     {
         @Override
         public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException
         {
             int bytesSum = 0;
+            int count = 0;
+            CustomData customData = new CustomData();
             for (IntWritable i : values)
             {
                 bytesSum += Integer.parseInt(i.toString());
+                count++;
             }
-            context.write(key, new IntWritable(bytesSum));
+            customData.setAvg(bytesSum / count);
+            customData.setTotal(bytesSum);
+            context.write(key, customData);
         }
     }
 
@@ -90,6 +95,36 @@ public class BytesCount
         }
     }*/
 
+    static class CustomData
+    {
+        private int total;
+        private int avg;
+
+        public CustomData() {
+        }
+
+        public int getTotal() {
+            return total;
+        }
+
+        public void setTotal(int total) {
+            this.total = total;
+        }
+
+        public int getAvg() {
+            return avg;
+        }
+
+        public void setAvg(int avg) {
+            this.avg = avg;
+        }
+
+        @Override
+        public String toString() {
+            return avg + "," + total;
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "Count bytes by IP");
@@ -101,13 +136,13 @@ public class BytesCount
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
+        job.setOutputValueClass(CustomData.class);
         Path outputPath = new Path(args[1]);
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        FileOutputFormat.setCompressOutput(job, true);
+       /* FileOutputFormat.setCompressOutput(job, true);
         FileOutputFormat.setOutputCompressorClass(job, SnappyCodec.class);
-        SequenceFileOutputFormat.setOutputCompressionType(job, SequenceFile.CompressionType.BLOCK);
+        SequenceFileOutputFormat.setOutputCompressionType(job, SequenceFile.CompressionType.BLOCK);*/
         outputPath.getFileSystem(conf).delete(outputPath);
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
