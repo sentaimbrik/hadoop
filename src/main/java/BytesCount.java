@@ -18,7 +18,9 @@ public class BytesCount
     public static class BytesMapper extends Mapper<Object, Text, Text, Text>
     {
         private Pattern patternIP = Pattern.compile("^[A-Za-z]*[0-9]*");
-        private Pattern patternBytes = Pattern.compile("(200).([0-9]*)");
+        private Pattern patternBytes = Pattern.compile("([0-9]{1,}\\ \\\")|([0-9]{1,}\\ \\- \\\")");
+        Pattern patternDigits = Pattern.compile("([0-9]*)");
+
 
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException
@@ -27,8 +29,11 @@ public class BytesCount
             Matcher matcherBytes = patternBytes.matcher(value.toString());
             matcherIP.find();
             matcherBytes.find();
+            Matcher matcherDigits = patternDigits.matcher(matcherBytes.group(0));
+            matcherDigits.find();
 
-            context.write(new Text(matcherIP.group(0)), new Text(matcherBytes.group(2)));
+
+            context.write(new Text(matcherIP.group(0)), new Text(matcherDigits.group(0)));
         }
     }
 
