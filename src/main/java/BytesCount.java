@@ -26,9 +26,9 @@ public class BytesCount
             Matcher matcherIP = patternIP.matcher(value.toString());
             Matcher matcherBytes = patternBytes.matcher(value.toString());
             matcherIP.find();
-            //matcherBytes.find();
+            matcherBytes.find();
 
-            context.write(new Text(matcherIP.group(0)), new Text("1"));
+            context.write(new Text(matcherIP.group(0)), new Text(matcherBytes.group(0)));
         }
     }
 
