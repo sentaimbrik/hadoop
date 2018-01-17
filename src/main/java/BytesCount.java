@@ -3,7 +3,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.google.common.primitives.Bytes;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -22,7 +21,7 @@ public class BytesCount
         Pattern patternBytes = Pattern.compile("(200).([0-9]*)");
 
         @Override
-        public void map(Object key, Text value,  Context context) throws IOException, InterruptedException
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException
         {
             Matcher matcherIP = patternIP.matcher(value.toString());
             Matcher matcherBytes = patternBytes.matcher(value.toString());
