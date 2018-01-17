@@ -28,7 +28,7 @@ public class BytesCount
             matcherIP.find();
             matcherBytes.find();
 
-            context.write(new Text(matcherIP.group(0)), new Text(matcherBytes.group(0)));
+            context.write(new Text(matcherIP.group(0)), new Text(matcherBytes.group(2)));
         }
     }
 
