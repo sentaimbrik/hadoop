@@ -12,6 +12,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 public class BytesCount
 {
@@ -90,6 +91,7 @@ public class BytesCount
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "Count bytes by IP");
         job.setJarByClass(BytesCount.class);
+        job.setOutputFormatClass(TextOutputFormat.class);
         job.setMapperClass(BytesMapper.class);
         job.setCombinerClass(BytesCombiner.class);
         //job.setReducerClass (BytesReducer.class );
