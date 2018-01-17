@@ -27,10 +27,24 @@ public class BytesCount
             Matcher matcherIP = patternIP.matcher(value.toString());
             Matcher matcherBytes = patternBytes.matcher(value.toString());
             matcherIP.find();
+            StringBuilder IPstr = new StringBuilder();
+            if(matcherIP.group(2).length() == 1)
+            {
+                IPstr.append("00" + matcherIP.group(2));
+            }
+            else if(matcherIP.group(2).length() == 2)
+            {
+                IPstr.append("0" + matcherIP.group(2));
+            }
+            else
+            {
+                IPstr.append(matcherIP.group(2));
+            }
+
             matcherBytes.find();
             Matcher matcherDigits = patternDigits.matcher(matcherBytes.group(0));
             matcherDigits.find();
-            context.write(new Text(matcherIP.group(1).toUpperCase() + "," + matcherIP.group(2)), new IntWritable(Integer.parseInt(matcherDigits.group(0))));
+            context.write(new Text(matcherIP.group(1).toUpperCase() + "," + IPstr), new IntWritable(Integer.parseInt(matcherDigits.group(0))));
         }
     }
 
