@@ -129,12 +129,12 @@ public class BytesCount
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "Count bytes by IP");
         job.setJarByClass(BytesCount.class);
-        job.setOutputFormatClass(TextOutputFormat.class);
+        //job.setOutputFormatClass(TextOutputFormat.class);
         job.setMapperClass(BytesMapper.class);
         job.setCombinerClass(BytesCombiner.class);
         //job.setReducerClass (BytesReducer.class );
         job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(CustomData.class);
+        job.setMapOutputValueClass(IntWritable.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(CustomData.class);
         Path outputPath = new Path(args[1]);
