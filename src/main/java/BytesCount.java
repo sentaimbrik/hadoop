@@ -15,12 +15,11 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class BytesCount
 {
-    public static class BytesMapper extends Mapper<Object, Text, Text, Text>
+    public static class BytesMapper extends Mapper<Object, Text, Text, IntWritable>
     {
         private Pattern patternIP = Pattern.compile("^[A-Za-z]*[0-9]*");
         private Pattern patternBytes = Pattern.compile("([0-9]{1,}\\ \\\")|([0-9]{1,}\\ \\- \\\")");
-        Pattern patternDigits = Pattern.compile("([0-9]*)");
-
+        private Pattern patternDigits = Pattern.compile("([0-9]*)");
 
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException
@@ -31,13 +30,11 @@ public class BytesCount
             matcherBytes.find();
             Matcher matcherDigits = patternDigits.matcher(matcherBytes.group(0));
             matcherDigits.find();
-
-
-            context.write(new Text(matcherIP.group(0)), new Text(matcherDigits.group(0)));
+            context.write(new Text(matcherIP.group(0)), new IntWritable(Integer.parseInt(matcherDigits.group(0))));
         }
     }
 
-    /*public static class BytesReducer extends Reducer<Text, Text, Text, Text>
+    /*public static class BytesReducer extends Reducer<Text, IntWritable, Text, Text>
     {
 
         private Text txt = new Text();
@@ -69,9 +66,9 @@ public class BytesCount
         //job.setCombinerClass(IntSumReducer.class);
         //job.setReducerClass (BytesReducer.class );
         job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(Text.class);
+        job.setMapOutputValueClass(IntWritable.class);
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
         Path outputPath = new Path(args[1]);
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
