@@ -97,7 +97,7 @@ public class BytesCount
         job.setCombinerClass(BytesCombiner.class);
         //job.setReducerClass (BytesReducer.class );
         job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(IntWritable.class);
+        job.setMapOutputValueClass(NullWritable.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(NullWritable.class);
         Path outputPath = new Path(args[1]);
