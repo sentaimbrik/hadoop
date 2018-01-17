@@ -52,48 +52,46 @@ public class BytesCount
         }
     }
 
-    public static class BytesCombiner extends Reducer<Text, IntWritable, Text, CustomData>
+    public static class BytesCombiner extends Reducer<Text, IntWritable, Text, IntWritable>
     {
         @Override
         public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException
         {
-            int bytesSum = 0;
             int count = 0;
-            CustomData customData = new CustomData();
+            int bytesSum = 0;
             for (IntWritable i : values)
             {
                 bytesSum += Integer.parseInt(i.toString());
                 count++;
             }
-            customData.setAvg(bytesSum / count);
-            customData.setTotal(bytesSum);
-            context.write(key, customData);
+            context.write(new Text(key + ";" + count), new IntWritable(bytesSum));
         }
     }
 
-    /*public static class BytesReducer extends Reducer<Text, IntWritable, Text, Text>
+    public static class BytesReducer extends Reducer<Text, IntWritable, Text, CustomData>
     {
 
-        private Text txt = new Text();
-        private IntWritable wordLength = new IntWritable();
         @Override
-        public void reduce(IntWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException
+        public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException
         {
-            StringBuilder sb = new StringBuilder();
-            for (Text v : values)
+
+            int bytes = 0;
+            CustomData customData = new CustomData();
+            String[] strs = key.toString().split(";");
+            int count = Integer.parseInt(strs[strs.length - 1]);
+            String newKey = key.toString().substring(0, key.toString().indexOf(";"));
+
+            for (IntWritable i : values)
             {
-                sb.append(v + ";");
+                bytes +=Integer.parseInt(i.toString());
             }
-            txt.set(sb.toString());
-            wordLength = key;
+
+            customData.setAvg(bytes / count);
+            customData.setTotal(bytes);
+            context.write(new Text(newKey), customData);
         }
 
-        @Override
-        public void cleanup(Context context) throws IOException, InterruptedException
-        {
-            context.write(txt, wordLength);
-        }
-    }*/
+    }
 
     static class CustomData
     {
@@ -129,10 +127,10 @@ public class BytesCount
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "Count bytes by IP");
         job.setJarByClass(BytesCount.class);
-        //job.setOutputFormatClass(TextOutputFormat.class);
+        job.setOutputFormatClass(TextOutputFormat.class);
         job.setMapperClass(BytesMapper.class);
         job.setCombinerClass(BytesCombiner.class);
-        //job.setReducerClass (BytesReducer.class );
+        job.setReducerClass (BytesReducer.class );
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);
         job.setOutputKeyClass(Text.class);
