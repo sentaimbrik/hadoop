@@ -51,6 +51,7 @@ public class BytesCount
 
     public static class BytesCombiner extends Reducer<Text, IntWritable, Text, NullWritable>
     {
+        NullWritable nw = NullWritable.get();
         @Override
         public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException
         {
@@ -59,7 +60,8 @@ public class BytesCount
             {
                 bytesSum += Integer.parseInt(i.toString());
             }
-            context.write(new Text(key.toString() + "," + bytesSum), NullWritable.get());
+
+            context.write(new Text(key.toString() + "," + bytesSum), nw);
         }
     }
 
