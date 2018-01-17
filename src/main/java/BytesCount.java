@@ -34,6 +34,20 @@ public class BytesCount
         }
     }
 
+    public static class BytesCombiner extends Reducer<Text, IntWritable, Text, IntWritable>
+    {
+        @Override
+        public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException
+        {
+            int bytesSum = 0;
+            for (IntWritable i : values)
+            {
+                bytesSum += Integer.parseInt(i.toString());
+            }
+            context.write(key, new IntWritable(bytesSum));
+        }
+    }
+
     /*public static class BytesReducer extends Reducer<Text, IntWritable, Text, Text>
     {
 
@@ -63,7 +77,7 @@ public class BytesCount
         Job job = Job.getInstance(conf, "Count bytes by IP");
         job.setJarByClass(BytesCount.class);
         job.setMapperClass(BytesMapper.class);
-        //job.setCombinerClass(IntSumReducer.class);
+        job.setCombinerClass(BytesCombiner.class);
         //job.setReducerClass (BytesReducer.class );
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);
