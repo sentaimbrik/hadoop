@@ -9,13 +9,13 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.compress.SnappyCodec;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.*;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.mapreduce.Counters;
+import org.apache.hadoop.mapreduce.Counter;
 
 public class BytesCount
 {
@@ -63,7 +63,7 @@ public class BytesCount
             {
                 ag = matcherAgent.group(0);
             }
-            context.write(new Text(matcherIP.group(1).toUpperCase() + IPstr  + "+" + ag), new IntWritable(Integer.parseInt(matcherDigits.group(0))));
+            context.write(new Text(matcherIP.group(1).toUpperCase() + IPstr  + "+" + ag ), new IntWritable(Integer.parseInt(matcherDigits.group(0))));
 
 
         }
@@ -76,7 +76,6 @@ public class BytesCount
         {
             int count = 0;
             int bytesSum = 0;
-            //String agent = key.toString().substring(0, key.toString().indexOf("+"));
 
             for (IntWritable i : values)
             {
@@ -86,22 +85,31 @@ public class BytesCount
             context.write(new Text(key + ";" + count), new IntWritable(bytesSum));
         }
     }
-/*
+
     public static class BytesReducer extends Reducer<Text, IntWritable, Text, CustomData>
     {
+        private CustomData customData = new CustomData();
         @Override
         public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException
         {
-
             int bytes = 0;
-            CustomData customData = new CustomData();
+
             String[] strs = key.toString().split(";");
             int count = Integer.parseInt(strs[strs.length - 1]);
-            String newKey = key.toString().substring(0, key.toString().indexOf(";"));
+            String newKey = key.toString().substring(0, key.toString().indexOf("+"));
+            String agent = key.toString().substring(key.toString().indexOf("+"), key.toString().indexOf(";"));
 
             for (IntWritable i : values)
             {
                 bytes +=Integer.parseInt(i.toString());
+            }
+
+            if ( agent.equals("Mozilla") ) {
+                context.getCounter(AGENTS.MOZILLA).increment(1);
+            }
+            else
+            {
+                context.getCounter(AGENTS.OTHER).increment(1);
             }
 
             customData.setAvg(bytes / count);
@@ -109,7 +117,7 @@ public class BytesCount
             context.write(new Text(newKey), customData);
         }
 
-    }*/
+    }
 
     static class CustomData
     {
@@ -161,5 +169,11 @@ public class BytesCount
         SequenceFileOutputFormat.setOutputCompressionType(job, SequenceFile.CompressionType.BLOCK);*/
         outputPath.getFileSystem(conf).delete(outputPath);
         System.exit(job.waitForCompletion(true) ? 0 : 1);
+
+        Counters counters = job.getCounters();
+        Counter c1 = counters.findCounter(AGENTS.MOZILLA);
+        System.out.println(c1.getDisplayName()+" --> "+c1.getValue());
+        c1 = counters.findCounter(AGENTS.OTHER);
+        System.out.println(c1.getDisplayName()+" --> "+c1.getValue());
     }
 }
