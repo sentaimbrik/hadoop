@@ -156,7 +156,7 @@ public class BytesCount
         job.setOutputFormatClass(TextOutputFormat.class);
         job.setMapperClass(BytesMapper.class);
         job.setCombinerClass(BytesCombiner.class);
-        //job.setReducerClass (BytesReducer.class );
+        job.setReducerClass (BytesReducer.class );
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);
         job.setOutputKeyClass(Text.class);
