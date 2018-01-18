@@ -63,7 +63,7 @@ public class BytesCount
             {
                 ag = matcherAgent.group(0);
             }
-            context.write(new Text(ag + "+" + matcherIP.group(1).toUpperCase() + IPstr), new IntWritable(Integer.parseInt(matcherDigits.group(0))));
+            context.write(new Text(matcherIP.group(1).toUpperCase() + IPstr  + "+" + ag), new IntWritable(Integer.parseInt(matcherDigits.group(0))));
 
 
         }
