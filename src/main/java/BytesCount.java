@@ -62,21 +62,13 @@ public class BytesCount
             if ( matcherAgent.find())
             {
                 ag = matcherAgent.group(0);
-               /* if (ag.equals("Mozilla"))
-                {
-                    context.getCounter(AGENTS.MOZILLA).increment(1);
-                }
-                else
-                {
-                    context.getCounter(AGENTS.OTHER).increment(1);
-                }*/
             }
-            context.write(new Text(ag + "" + matcherIP.group(1).toUpperCase() + IPstr), new IntWritable(Integer.parseInt(matcherDigits.group(0))));
+            context.write(new Text(ag + "+" + matcherIP.group(1).toUpperCase() + IPstr), new IntWritable(Integer.parseInt(matcherDigits.group(0))));
 
 
         }
     }
-/*
+
     public static class BytesCombiner extends Reducer<Text, IntWritable, Text, IntWritable>
     {
         @Override
@@ -84,6 +76,8 @@ public class BytesCount
         {
             int count = 0;
             int bytesSum = 0;
+            //String agent = key.toString().substring(0, key.toString().indexOf("+"));
+
             for (IntWritable i : values)
             {
                 bytesSum += Integer.parseInt(i.toString());
@@ -92,7 +86,7 @@ public class BytesCount
             context.write(new Text(key + ";" + count), new IntWritable(bytesSum));
         }
     }
-
+/*
     public static class BytesReducer extends Reducer<Text, IntWritable, Text, CustomData>
     {
         @Override
