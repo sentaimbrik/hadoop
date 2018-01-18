@@ -19,11 +19,16 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 public class BytesCount
 {
+    public static enum AGENTS {
+        //Mozilla, Opera, Safari, Microsoft, Googlebot, Other
+        MOZILLA, OPERA, SAFARI, IE, GOOGLE, OTHER
+    }
     public static class BytesMapper extends Mapper<Object, Text, Text, IntWritable>
     {
         private Pattern patternIP = Pattern.compile("^([A-Za-z]*)([0-9]*)");
         private Pattern patternBytes = Pattern.compile("([0-9]{1,}\\ \\\")|([0-9]{1,}\\ \\- \\\")");
         private Pattern patternDigits = Pattern.compile("([0-9]*)");
+        private Pattern patternAgent = Pattern.compile("^[A-Za-z]+");
 
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException
@@ -48,10 +53,30 @@ public class BytesCount
             matcherBytes.find();
             Matcher matcherDigits = patternDigits.matcher(matcherBytes.group(0));
             matcherDigits.find();
-            context.write(new Text(matcherIP.group(1).toUpperCase() + IPstr), new IntWritable(Integer.parseInt(matcherDigits.group(0))));
+
+            String[] str = value.toString().split("\"");
+            String[] agent = str[str.length - 1].split(" ");
+            String ag = agent[0];
+            Matcher matcherAgent = patternAgent.matcher(ag);
+
+            if ( matcherAgent.find())
+            {
+                ag = matcherAgent.group(0);
+               /* if (ag.equals("Mozilla"))
+                {
+                    context.getCounter(AGENTS.MOZILLA).increment(1);
+                }
+                else
+                {
+                    context.getCounter(AGENTS.OTHER).increment(1);
+                }*/
+            }
+            context.write(new Text(ag + "" + matcherIP.group(1).toUpperCase() + IPstr), new IntWritable(Integer.parseInt(matcherDigits.group(0))));
+
+
         }
     }
-
+/*
     public static class BytesCombiner extends Reducer<Text, IntWritable, Text, IntWritable>
     {
         @Override
@@ -70,7 +95,6 @@ public class BytesCount
 
     public static class BytesReducer extends Reducer<Text, IntWritable, Text, CustomData>
     {
-
         @Override
         public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException
         {
@@ -91,7 +115,7 @@ public class BytesCount
             context.write(new Text(newKey), customData);
         }
 
-    }
+    }*/
 
     static class CustomData
     {
@@ -129,8 +153,8 @@ public class BytesCount
         job.setJarByClass(BytesCount.class);
         job.setOutputFormatClass(TextOutputFormat.class);
         job.setMapperClass(BytesMapper.class);
-        job.setCombinerClass(BytesCombiner.class);
-        job.setReducerClass (BytesReducer.class );
+        //job.setCombinerClass(BytesCombiner.class);
+        //job.setReducerClass (BytesReducer.class );
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);
         job.setOutputKeyClass(Text.class);
